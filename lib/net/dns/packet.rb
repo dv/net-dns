@@ -348,9 +348,11 @@ module Net
       end
 
       # Filters the elements in the +answer+ section based on the class given
-      def elements(type = nil)
-        if type
-          @answer.select {|elem| elem.kind_of? type}
+      def elements(*types)
+        if types.any?
+          @answer.select do |elem|
+            types.any? { |type| elem.kind_of?(type) }
+          end
         else
           @answer
         end
@@ -366,7 +368,7 @@ module Net
       # As you can see in the documentation for the <tt>Net::DNS::RR::A</tt> class,
       # the address returned is an instance of <tt>IPAddr</tt> class.
       def each_address(&block)
-        elements(Net::DNS::RR::A).map(&:address).each(&block)
+        elements(Net::DNS::RR::A, Net::DNS::RR::AAAA).map(&:address).each(&block)
       end
 
       # Iterates every nameserver in the +answer+ section
