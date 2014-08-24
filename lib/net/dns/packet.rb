@@ -347,6 +347,15 @@ module Net
         end
       end
 
+      # Filters the elements in the +answer+ section based on the class given
+      def elements(type = nil)
+        if type
+          @answer.select {|elem| elem.kind_of? type}
+        else
+          @answer
+        end
+      end
+
       # Iterates every address in the +answer+ section
       # of this <tt>Net::DNS::Packet</tt> instance.
       #
@@ -357,10 +366,7 @@ module Net
       # As you can see in the documentation for the <tt>Net::DNS::RR::A</tt> class,
       # the address returned is an instance of <tt>IPAddr</tt> class.
       def each_address(&block)
-        @answer.each do |elem|
-          next unless elem.class == Net::DNS::RR::A
-          yield elem.address
-        end
+        elements(Net::DNS::RR::A).map(&:address).each(&block)
       end
 
       # Iterates every nameserver in the +answer+ section
@@ -371,10 +377,7 @@ module Net
       #   end
       #
       def each_nameserver(&block)
-        @answer.each do |elem|
-          next unless elem.class == Net::DNS::RR::NS
-          yield elem.nsdname
-        end
+        elements(Net::DNS::RR::NS).map(&:nsdname).each(&block)
       end
 
       # Iterates every exchange record in the +answer+ section
@@ -385,10 +388,7 @@ module Net
       #   end
       #
       def each_mx(&block)
-        @answer.each do |elem|
-          next unless elem.class == Net::DNS::RR::MX
-          yield elem.preference, elem.exchange
-        end
+        elements(Net::DNS::RR::MX).map{|elem| [elem.preference, elem.exchange]}.each(&block)
       end
 
       # Iterates every canonical name in the +answer+ section
@@ -399,10 +399,7 @@ module Net
       #   end
       #
       def each_cname(&block)
-        @answer.each do |elem|
-          next unless elem.class == Net::DNS::RR::CNAME
-          yield elem.cname
-        end
+        elements(Net::DNS::RR::CNAME).map(&:cname).each(&block)
       end
 
       # Iterates every pointer in the +answer+ section
@@ -413,10 +410,7 @@ module Net
       #   end
       #
       def each_ptr(&block)
-        @answer.each do |elem|
-          next unless elem.class == Net::DNS::RR::PTR
-          yield elem.ptrdname
-        end
+        elements(Net::DNS::RR::PTR).map(&:ptrdname).each(&block)
       end
 
       # Returns the packet size in bytes.
